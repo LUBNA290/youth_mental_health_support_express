@@ -1,24 +1,26 @@
 import { db } from "../config/dbConfig.js";
-import { execQuery } from "../utils/dbUtil.js";
+import { execQuery } from "../config/dbUtil.js";
 
 export const loginMdl = function (signupdata, callback) {
-  var QRY_TO_EXEC = `SELECT * FROM user where email= "${signupdata.userEmail}"`
+  var QRY_TO_EXEC = `SELECT * FROM user WHERE email = "${signupdata.userEmail}"`;
   // console.log("QRY_TO_EXEC", QRY_TO_EXEC)
-  if (callback && typeof callback == "function")
+  if (callback && typeof callback === "function")
     execQuery(
       db,
       QRY_TO_EXEC,
       function (err, results) {
         callback(err, results);
-        console.log()
+        console.log();
         return;
       }
     );
   else return execQuery(db, QRY_TO_EXEC);
-  console.log("==========>", QRY_TO_EXEC)
-
+  console.log("==========>", QRY_TO_EXEC);
 };
 
+const escapeValue = (value) => {
+  return db.escape(value);
+};
 export const createUserMdl = function (userData, callback) {
   const {
     userName,
@@ -28,6 +30,7 @@ export const createUserMdl = function (userData, callback) {
     password,
     address,
     mobileNo,
+    role // Add role here
   } = userData;
 
   // Check if the email already exists
@@ -76,7 +79,7 @@ export const createUserMdl = function (userData, callback) {
             }
           } else {
             // Insert the new user since neither email nor username exists
-            const insertUserQuery = `INSERT INTO user (user_name, first_name, last_name, email, password, mobile_no, address) VALUES ("${userName}", "${firstName}", "${lastName}", "${email}", "${password}", "${mobileNo}", "${address}")`;
+            const insertUserQuery = `INSERT INTO user (user_name, first_name, last_name, email, password, mobile_no, address, role) VALUES ("${userName}", "${firstName}", "${lastName}", "${email}", "${password}", "${mobileNo}", "${address}", "${role}")`;
 
             execQuery(db, insertUserQuery, function (err, results) {
               if (callback && typeof callback === "function") {
@@ -92,3 +95,22 @@ export const createUserMdl = function (userData, callback) {
   });
 };
 
+
+export const updateUserConditionMdl = function (userData, callback) {
+  const { userId, condition } = userData;
+
+  // Escape dynamic values
+  const escapedCondition = escapeValue(condition);
+  const escapedUserId = escapeValue(userId);
+
+  // Use backticks around the reserved keyword 'condition'
+  const updateConditionQuery = `UPDATE user SET \`condition\` = ${escapedCondition} WHERE user_id = ${escapedUserId}`;
+
+  execQuery(db, updateConditionQuery, function (err, results) {
+      if (err) {
+          callback(err, null);
+      } else {
+          callback(null, results);
+      }
+  });
+};

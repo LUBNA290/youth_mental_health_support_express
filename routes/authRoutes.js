@@ -1,5 +1,5 @@
 import express from "express";
-import { LoginAppCtrl, createUserCtrl } from '../controllers/authController.js';
+import { LoginAppCtrl, createUserCtrl, updateUserConditionCtrl } from '../controllers/authController.js';
 import jwt from 'jsonwebtoken';
 
 function verifyToken(req, res, next) {
@@ -32,7 +32,13 @@ function verifyToken(req, res, next) {
 
 const router = express.Router();
 
+// Route to handle login
 router.post("/login", LoginAppCtrl);
-router.post("/create", createUserCtrl);
+
+// Route to handle user registration
+router.post("/register", createUserCtrl);
+
+// Route to update user condition (protected by token verification)
+router.post("/user/condition", updateUserConditionCtrl);
 
 export default router;

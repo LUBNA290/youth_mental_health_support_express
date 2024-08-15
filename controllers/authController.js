@@ -5,7 +5,7 @@ import Jwt from 'jsonwebtoken';
 const { jwt } = Jwt;
 
 import { loginMdl } from '../models/authModel.js'
-import { createUserMdl } from '../models/authModel.js'
+import { createUserMdl, updateUserConditionMdl } from '../models/authModel.js';
 
 
 export const LoginAppCtrl = function (req, res) {
@@ -64,6 +64,28 @@ export const createUserCtrl = (req, res) => {
             }
         } else {
             res.status(201).json({ status: 201, message: "User registered successfully" });
+        }
+    });
+};
+
+
+export const updateUserConditionCtrl = (req, res) => {
+    const { user_id, condition } = req.body; // Extract user_id and condition from the request body
+
+    if (!user_id || !condition) {
+        return res.status(400).json({ status: 400, message: "User ID and condition are required" });
+    }
+
+    const userData = {
+        userId: user_id,
+        condition
+    };
+
+    updateUserConditionMdl(userData, (err, results) => {
+        if (err) {
+            res.status(500).json({ status: 500, message: "Internal server error" });
+        } else {
+            res.status(200).json({ status: 200, message: "User condition updated successfully" });
         }
     });
 };
