@@ -231,6 +231,51 @@ app.get('/user-bookings/:user_id', (req, res) => {
     });
 });
 
+app.post('/motivation-stories', (req, res) => {
+    const { title, user_id, content } = req.body;
+
+    if (!title || !user_id || !content) {
+        return res.status(400).json({ status: 400, message: 'Title, User ID, and Content are required' });
+    }
+
+    const sql = 'INSERT INTO motivation_stories (title, user_id, content) VALUES (?, ?, ?)';
+    db.query(sql, [title, user_id, content], (err, result) => {
+        if (err) {
+            console.error('Error inserting into motivation_stories table:', err);
+            return res.status(500).json({ status: 500, message: 'Failed to insert into motivation_stories table' });
+        }
+        console.log('Inserted into motivation_stories table:', result);
+        res.status(201).json({ status: 201, message: 'Motivational story created successfully', story_id: result.insertId });
+    });
+});
+
+app.get('/motivation-stories', (req, res) => {
+    const sql = `
+        SELECT 
+            ms.story_id, 
+            ms.title, 
+            ms.content, 
+            ms.created_at, 
+            u.user_id, 
+            CONCAT(u.first_name, ' ', u.last_name) AS author_name 
+        FROM 
+            motivation_stories ms
+        JOIN 
+            user u ON ms.user_id = u.user_id
+        ORDER BY 
+            ms.created_at DESC
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching stories from motivation_stories table:', err);
+            return res.status(500).json({ status: 500, message: 'Failed to fetch motivational stories' });
+        }
+        res.status(200).json({ status: 200, stories: results });
+    });
+});
+
+
 app.use('/ymhs/autenticate', autenticationRoute);
 
 const PORT = process.env.PORT || 3001;

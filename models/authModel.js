@@ -15,7 +15,6 @@ export const loginMdl = function (signupdata, callback) {
       }
     );
   else return execQuery(db, QRY_TO_EXEC);
-  console.log("==========>", QRY_TO_EXEC);
 };
 
 const escapeValue = (value) => {
